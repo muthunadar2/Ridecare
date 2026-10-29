@@ -1,9 +1,13 @@
 <?php
 require_once 'config/db.php';
 
-// Ensure error reporting is visible for setup
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+// Print what database we are actually connected to
+$db_name_result = $conn->query("SELECT DATABASE() as db");
+$row = $db_name_result->fetch_assoc();
+echo "<h2>Connected to Database: <span style='color: blue;'>" . htmlspecialchars($row['db']) . "</span></h2>";
 
 $queries = [
     "CREATE TABLE IF NOT EXISTS users (
@@ -55,8 +59,6 @@ $queries = [
     ) ENGINE=InnoDB"
 ];
 
-echo "<h2>Running RideCare Database Setup...</h2>";
-
 foreach ($queries as $index => $sql) {
     if ($conn->query($sql) === TRUE) {
         echo "<p style='color: green;'>Table " . ($index + 1) . " created successfully or already exists.</p>";
@@ -65,6 +67,6 @@ foreach ($queries as $index => $sql) {
     }
 }
 
-echo "<h3>Setup complete! You can now access your dashboard.</h3>";
+echo "<h3>Setup complete! Check if the database name above is 'defaultdb'.</h3>";
 echo "<p><a href='dashboard.php'>Go to Dashboard &rarr;</a></p>";
 ?>
