@@ -2,4 +2,5 @@
 .gitignore
 README.md
 sql
+ridecare
 *.zip

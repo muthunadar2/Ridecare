@@ -31,14 +31,28 @@ so the km side stays accurate.
     bike.php                                   one bike: odometer, reminders, history, edit/delete
     service_add.php                            log a service
     history.php                                all services, filters, CSV
-    includes/bootstrap.php                     session, DB, schema, helpers, reminder maths
+    includes/bootstrap.php                     session, DB connection, helpers, reminder maths
+    includes/schema.php                        creates / verifies / repairs the 4 tables on every request
     includes/layout.php                        sidebar shell, auth screen, reminder card
     assets/css/app.css, assets/js/app.js
-    config/db.example.php                      copy to config/db.php
+    config/db.php                              mysqli connection ($conn), configured by environment variables
+    setup_db.php                               visible database check: open /setup_db.php to see each table's status
     sql/schema_reference.sql                   reference only (the app creates tables itself)
     Dockerfile, docker/                        Apache + PHP config
 
+## Deploying on Render with Aiven MySQL
 
+`config/db.php` reads `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME` and `DB_PORT` from the environment
+(set them in the Render dashboard) and connects over SSL, which Aiven requires. `APP_TIMEZONE` is optional
+(defaults to `Asia/Kolkata`).
+
+The tables `users`, `bikes`, `reminders` and `services` are created automatically: on every request the app
+runs one read-only check, and only when something is missing does it create or repair it (see `includes/schema.php`).
+If a table cannot be created (for example the database user lacks CREATE rights), the page says which tables are
+affected and the exact MySQL error is written to the Render logs, so nothing fails silently.
+Open `/setup_db.php` any time to see the status of each table.
+
+PHP errors are logged, not shown to visitors (`docker/php-custom.ini`).
 
 ## Ideas for next steps
 

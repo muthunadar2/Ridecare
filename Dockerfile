@@ -7,6 +7,7 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 RUN a2enmod rewrite headers
 COPY docker/apache-security.conf /etc/apache2/conf-available/app-security.conf
 RUN a2enconf app-security
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf && a2enconf servername
 
 # PHP: production defaults + our overrides (errors logged, not shown to visitors)
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
