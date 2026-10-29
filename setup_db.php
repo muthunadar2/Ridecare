@@ -1,72 +1,25 @@
 <?php
-require_once 'config/db.php';
-
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Print what database we are actually connected to
-$db_name_result = $conn->query("SELECT DATABASE() as db");
-$row = $db_name_result->fetch_assoc();
-echo "<h2>Connected to Database: <span style='color: blue;'>" . htmlspecialchars($row['db']) . "</span></h2>";
+require_once 'config/db.php';
 
-$queries = [
-    "CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        email VARCHAR(150) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB",
+echo "<h2>Connected successfully to MySQL!</h2>";
 
-    "CREATE TABLE IF NOT EXISTS bikes (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        name VARCHAR(100) NOT NULL,
-        model VARCHAR(100) NOT NULL DEFAULT '',
-        reg_no VARCHAR(30) NOT NULL DEFAULT '',
-        odometer INT NOT NULL DEFAULT 0,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_bike_user (user_id),
-        CONSTRAINT fk_bike_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB",
+$sql = "CREATE TABLE IF NOT EXISTS bikes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL DEFAULT '',
+    reg_no VARCHAR(30) NOT NULL DEFAULT '',
+    odometer INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB";
 
-    "CREATE TABLE IF NOT EXISTS reminders (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        bike_id INT NOT NULL,
-        task VARCHAR(100) NOT NULL,
-        interval_km INT NULL,
-        interval_days INT NULL,
-        last_done_date DATE NOT NULL,
-        last_done_km INT NOT NULL DEFAULT 0,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_rem_bike (bike_id),
-        CONSTRAINT fk_rem_bike FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB",
-
-    "CREATE TABLE IF NOT EXISTS services (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        bike_id INT NOT NULL,
-        reminder_id INT NULL,
-        task VARCHAR(100) NOT NULL,
-        service_date DATE NOT NULL,
-        odometer INT NOT NULL DEFAULT 0,
-        cost DECIMAL(10,2) NULL,
-        notes VARCHAR(500) NOT NULL DEFAULT '',
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_srv_bike (bike_id, service_date),
-        CONSTRAINT fk_srv_bike FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE,
-        CONSTRAINT fk_srv_rem FOREIGN KEY (reminder_id) REFERENCES reminders(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB"
-];
-
-foreach ($queries as $index => $sql) {
-    if ($conn->query($sql) === TRUE) {
-        echo "<p style='color: green;'>Table " . ($index + 1) . " created successfully or already exists.</p>";
-    } else {
-        echo "<p style='color: red;'>Error creating table: " . $conn->error . "</p>";
-    }
+if ($conn->query($sql) === TRUE) {
+    echo "<p style='color: green; font-size: 20px;'>SUCCESS: 'bikes' table created or already exists!</p>";
+} else {
+    echo "<p style='color: red; font-size: 20px;'>MYSQL ERROR: " . $conn->error . "</p>";
 }
-
-echo "<h3>Setup complete! Check if the database name above is 'defaultdb'.</h3>";
-echo "<p><a href='dashboard.php'>Go to Dashboard &rarr;</a></p>";
 ?>
